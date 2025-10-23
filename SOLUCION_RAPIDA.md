@@ -98,6 +98,29 @@ NEXTAUTH_SECRET=tu_secreto_generado_32_caracteres
 NEXTAUTH_URL=https://tu-proyecto.vercel.app
 ```
 
+### 🚨 Acceso de Emergencia (Si no puedes hacer seed)
+
+**Si la base de datos está vacía y no puedes ejecutar comandos**, usa este link especial:
+
+#### Desarrollo Local:
+```
+http://localhost:3000/users?setup=true
+```
+
+#### Producción (Vercel):
+```
+https://tu-proyecto.vercel.app/users?setup=true
+```
+
+**Cómo funciona:**
+1. El parámetro `?setup=true` permite acceder sin login
+2. Solo funciona si la base de datos está VACÍA (0 usuarios)
+3. Crea tu primer usuario admin desde la interfaz
+4. Una vez creado, el acceso sin auth se desactiva automáticamente
+5. Usa `/login` normalmente después
+
+**⚠️ IMPORTANTE**: Una vez que crees tu primer admin, elimina el `?setup=true` de la URL por seguridad.
+
 ### Crear Admin en Producción
 Ver guía completa en `GUIA_USUARIOS.md` sección "Configuración en Producción"
 
