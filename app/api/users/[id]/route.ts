@@ -47,3 +47,40 @@ export async function PATCH(
     return NextResponse.json({ error: 'Error al actualizar usuario' }, { status: 500 })
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session?.user) {
+      return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+    }
+
+    if (!canManageUsers(session.user.role)) {
+      return NextResponse.json(
+        { error: 'No tienes permisos para gestionar usuarios' },
+        { status: 403 }
+      )
+    }
+
+    // Evitar que el usuario se elimine a sí mismo
+    if (session.user.id === params.id) {
+      return NextResponse.json(
+        { error: 'No puedes eliminar tu propia cuenta' },
+        { status: 400 }
+      )
+    }
+
+    await prisma.user.delete({
+      where: { id: params.id },
+    })
+
+    return NextResponse.json({ message: 'Usuario eliminado correctamente' })
+  } catch (error) {
+    console.error('Error deleting user:', error)
+    return NextResponse.json({ error: 'Error al eliminar usuario' }, { status: 500 })
+  }
+}
