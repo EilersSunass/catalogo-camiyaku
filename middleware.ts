@@ -16,8 +16,13 @@ export default withAuth(
 
     // Proteger rutas de admin
     if (req.nextUrl.pathname.startsWith('/audit') || req.nextUrl.pathname.startsWith('/users')) {
-      if (!isAuth || token?.role !== 'ADMIN') {
-        return NextResponse.redirect(new URL('/products', req.url))
+      // Permitir acceso a /users con setup=true (modo de configuración inicial)
+      const isSetupMode = req.nextUrl.searchParams.get('setup') === 'true'
+      
+      if (!isSetupMode) {
+        if (!isAuth || token?.role !== 'ADMIN') {
+          return NextResponse.redirect(new URL('/products', req.url))
+        }
       }
     }
 
