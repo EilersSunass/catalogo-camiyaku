@@ -12,6 +12,7 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed-vercel": "tsx scripts/seed-vercel-db.ts",
     "db:reset": "node scripts/reset-db.js",
     "db:studio": "prisma studio",
     "create-admin": "tsx scripts/create-admin.ts",
