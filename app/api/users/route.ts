@@ -54,17 +54,24 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    // Verificar si hay usuarios en la base de datos
+    const userCount = await prisma.user.count()
+    const isInitialSetup = userCount === 0
 
-    if (!session?.user) {
-      return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
-    }
+    // Si no es setup inicial, requerir autenticación
+    if (!isInitialSetup) {
+      const session = await getServerSession(authOptions)
 
-    if (!canManageUsers(session.user.role)) {
-      return NextResponse.json(
-        { error: 'No tienes permisos para gestionar usuarios' },
-        { status: 403 }
-      )
+      if (!session?.user) {
+        return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+      }
+
+      if (!canManageUsers(session.user.role)) {
+        return NextResponse.json(
+          { error: 'No tienes permisos para gestionar usuarios' },
+          { status: 403 }
+        )
+      }
     }
 
     const body = await request.json()
