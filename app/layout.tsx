@@ -6,8 +6,9 @@ import { Toaster } from '@/components/ui/toaster'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Catálogo SUNASS - Productos y Herramientas',
-  description: 'Catálogo interno de dashboards, formularios, reportes y utilidades de SUNASS',
+  title: 'Catálogo CAMI YAKU - Productos y Herramientas',
+  description:
+    'Catálogo interno de dashboards, mapas, formularios, reportes y utilidades de CAMI YAKU - SUNASS',
 }
 
 export default function RootLayout({
