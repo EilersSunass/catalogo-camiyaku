@@ -22,9 +22,9 @@ export function Header() {
         <div className="flex items-center gap-6">
           <Link href="/products" className="flex items-center space-x-2">
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">S</span>
+              <span className="text-primary-foreground font-bold text-lg">CY</span>
             </div>
-            <span className="font-bold text-xl">Catálogo SUNASS</span>
+            <span className="font-bold text-xl">Catálogo CAMI YAKU</span>
           </Link>
 
           {session && (
