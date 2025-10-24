@@ -3,6 +3,7 @@
 import { Suspense, useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { loginSchema, type LoginFormData } from '@/lib/validations/auth'
@@ -61,9 +62,15 @@ function LoginForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md">
+      <div className="w-full max-w-md space-y-4">
+        <Link href="/products">
+          <Button variant="outline" className="w-full">
+            Regresar
+          </Button>
+        </Link>
+        <Card>
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Catálogo SUNASS</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">Catálogo CAMI YAKU</CardTitle>
           <CardDescription className="text-center">
             Ingresa tus credenciales para acceder al catálogo
           </CardDescription>
@@ -111,6 +118,7 @@ function LoginForm() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   )
 }
