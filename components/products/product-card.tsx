@@ -7,6 +7,12 @@ import { Button } from '@/components/ui/button'
 import { getProductTypeLabel, getProductStatusLabel, formatDateShort } from '@/lib/utils'
 import { ExternalLink, Eye, Pencil, Trash2, Copy } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 interface ProductCardProps {
   product: any
@@ -59,7 +65,16 @@ export function ProductCard({ product, canEdit, canDelete, onDelete }: ProductCa
           <div className="flex items-center gap-2">
             <span className="text-2xl">{getTypeIcon(product.type)}</span>
             <div className="flex-1">
-              <CardTitle className="text-lg line-clamp-1">{product.name}</CardTitle>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <CardTitle className="text-lg line-clamp-1 cursor-default">{product.name}</CardTitle>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{product.name}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <CardDescription className="text-xs mt-1">
                 {getProductTypeLabel(product.type)}
               </CardDescription>
