@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/components/ui/use-toast'
 import { formatDate } from '@/lib/utils'
-import { Shield, User, UserPlus, Trash2 } from 'lucide-react'
+import { Shield, User, UserPlus, Trash2, Key } from 'lucide-react'
 
 export function UsersClient() {
   const { toast } = useToast()
@@ -25,6 +25,10 @@ export function UsersClient() {
     password: '',
     role: 'USER',
   })
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false)
+  const [passwordUserId, setPasswordUserId] = useState<string | null>(null)
+  const [newPasswordValue, setNewPasswordValue] = useState('')
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
 
   useEffect(() => {
     fetchUsers()
@@ -152,6 +156,51 @@ export function UsersClient() {
     }
   }
 
+  const updatePassword = async () => {
+    if (!passwordUserId || !newPasswordValue || newPasswordValue.length < 8) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'La contraseña debe tener al menos 8 caracteres',
+      })
+      return
+    }
+
+    setIsUpdatingPassword(true)
+    try {
+      const response = await fetch(`/api/users/${passwordUserId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: newPasswordValue }),
+      })
+
+      if (response.ok) {
+        toast({
+          title: 'Contraseña actualizada',
+          description: 'La contraseña se ha actualizado correctamente',
+        })
+        setIsPasswordDialogOpen(false)
+        setNewPasswordValue('')
+        setPasswordUserId(null)
+      } else {
+        const error = await response.json()
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: error.error || 'No se pudo actualizar la contraseña',
+        })
+      }
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Ocurrió un error al actualizar la contraseña',
+      })
+    } finally {
+      setIsUpdatingPassword(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -236,104 +285,155 @@ export function UsersClient() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Cambiar Contraseña</DialogTitle>
+              <DialogDescription>
+                Ingresa la nueva contraseña. Mínimo 8 caracteres.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="new-password">Nueva Contraseña</Label>
+                <Input
+                  id="new-password"
+                  type="password"
+                  value={newPasswordValue}
+                  onChange={(e) => setNewPasswordValue(e.target.value)}
+                  placeholder="********"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsPasswordDialogOpen(false)}
+                disabled={isUpdatingPassword}
+              >
+                Cancelar
+              </Button>
+              <Button onClick={updatePassword} disabled={isUpdatingPassword || newPasswordValue.length < 8}>
+                {isUpdatingPassword ? 'Guardando...' : 'Guardar Contraseña'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
-      {isLoading ? (
-        <div className="space-y-2">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-24 bg-muted animate-pulse rounded-lg" />
-          ))}
-        </div>
-      ) : users.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center text-muted-foreground">
-            No hay usuarios registrados
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {users.map((user) => (
-            <Card key={user.id}>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      <User className="h-5 w-5" />
+      {
+        isLoading ? (
+          <div className="space-y-2">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-24 bg-muted animate-pulse rounded-lg" />
+            ))}
+          </div>
+        ) : users.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center text-muted-foreground">
+              No hay usuarios registrados
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {users.map((user) => (
+              <Card key={user.id}>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <User className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base">{user.name || 'Sin nombre'}</CardTitle>
+                        <p className="text-sm text-muted-foreground">{user.email}</p>
+                      </div>
                     </div>
-                    <div>
-                      <CardTitle className="text-base">{user.name || 'Sin nombre'}</CardTitle>
-                      <p className="text-sm text-muted-foreground">{user.email}</p>
-                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Rol:</span>
-                    <Select
-                      value={user.role}
-                      onValueChange={(value) => updateUserRole(user.id, value)}
-                    >
-                      <SelectTrigger className="w-32">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="USER">Usuario</SelectItem>
-                        <SelectItem value="CAMI_YAKU">Cami Yaku</SelectItem>
-                        <SelectItem value="ADMIN">Admin</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Productos:</span>
-                    <Badge variant="outline">{user._count.products}</Badge>
-                  </div>
-
-                  <div className="text-xs text-muted-foreground">
-                    Registrado: {formatDate(user.createdAt)}
-                  </div>
-                </div>
-
-                {user.role === 'ADMIN' && (
-                  <Badge variant="default" className="w-full justify-center">
-                    <Shield className="h-3 w-3 mr-1" />
-                    Administrador
-                  </Badge>
-                )}
-
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm" className="w-full mt-2">
-                      <Trash2 className="h-3 w-3 mr-1" />
-                      Eliminar Usuario
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Esta acción no se puede deshacer. Se eliminará permanentemente el usuario
-                        <strong> {user.name || user.email}</strong> y todos sus datos asociados.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => deleteUser(user.id)}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Rol:</span>
+                      <Select
+                        value={user.role}
+                        onValueChange={(value) => updateUserRole(user.id, value)}
                       >
-                        Eliminar
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-    </div>
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="USER">Usuario</SelectItem>
+                          <SelectItem value="CAMI_YAKU">Cami Yaku</SelectItem>
+                          <SelectItem value="ADMIN">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Productos:</span>
+                      <Badge variant="outline">{user._count.products}</Badge>
+                    </div>
+
+                    <div className="text-xs text-muted-foreground">
+                      Registrado: {formatDate(user.createdAt)}
+                    </div>
+                  </div>
+
+                  {user.role === 'ADMIN' && (
+                    <Badge variant="default" className="w-full justify-center">
+                      <Shield className="h-3 w-3 mr-1" />
+                      Administrador
+                    </Badge>
+                  )}
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full mt-2"
+                    onClick={() => {
+                      setPasswordUserId(user.id)
+                      setNewPasswordValue('')
+                      setIsPasswordDialogOpen(true)
+                    }}
+                  >
+                    <Key className="h-3 w-3 mr-1" />
+                    Cambiar Contraseña
+                  </Button>
+
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm" className="w-full mt-2">
+                        <Trash2 className="h-3 w-3 mr-1" />
+                        Eliminar Usuario
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Esta acción no se puede deshacer. Se eliminará permanentemente el usuario
+                          <strong> {user.name || user.email}</strong> y todos sus datos asociados.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => deleteUser(user.id)}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Eliminar
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )
+      }
+    </div >
   )
 }

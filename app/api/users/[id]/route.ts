@@ -24,15 +24,32 @@ export async function PATCH(
     }
 
     const body = await request.json()
-    const { role } = body
+    const { role, password } = body
 
-    if (!role || !['USER', 'ADMIN'].includes(role)) {
-      return NextResponse.json({ error: 'Rol inválido' }, { status: 400 })
+    const updateData: any = {}
+
+    if (role) {
+      if (!['USER', 'ADMIN', 'CAMI_YAKU'].includes(role)) {
+        return NextResponse.json({ error: 'Rol inválido' }, { status: 400 })
+      }
+      updateData.role = role
+    }
+
+    if (password) {
+      if (password.length < 8) {
+        return NextResponse.json({ error: 'La contraseña debe tener al menos 8 caracteres' }, { status: 400 })
+      }
+      const bcrypt = require('bcryptjs')
+      updateData.password = await bcrypt.hash(password, 10)
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json({ error: 'Nada que actualizar' }, { status: 400 })
     }
 
     const user = await prisma.user.update({
       where: { id: params.id },
-      data: { role },
+      data: updateData,
       select: {
         id: true,
         name: true,
