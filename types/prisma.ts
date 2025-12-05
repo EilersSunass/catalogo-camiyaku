@@ -1,7 +1,7 @@
-// Tipos para reemplazar los enums de Prisma cuando se usa SQLite
 export const Role = {
   USER: 'USER',
   ADMIN: 'ADMIN',
+  CAMI_YAKU: 'CAMI_YAKU',
 } as const
 
 export type Role = typeof Role[keyof typeof Role]
@@ -26,7 +26,9 @@ export type ProductStatus = typeof ProductStatus[keyof typeof ProductStatus]
 
 export const Visibility = {
   PUBLIC: 'PUBLIC',
-  INTERNAL: 'INTERNAL',
+  INTERNAL: 'INTERNAL', // Deprecated, mapped to EXTERNAL
+  EXTERNAL: 'EXTERNAL', // Visible to logged in users (formerly INTERNAL)
+  CAMI_YAKU: 'CAMI_YAKU', // Only Cami Yaku and Admin
 } as const
 
 export type Visibility = typeof Visibility[keyof typeof Visibility]

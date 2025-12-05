@@ -52,7 +52,7 @@ export function ProductFilters({ tags }: ProductFiltersProps) {
   const toggleTag = (tagName: string) => {
     const params = new URLSearchParams(searchParams.toString())
     const currentTags = params.getAll('tags')
-    
+
     if (currentTags.includes(tagName)) {
       params.delete('tags')
       currentTags.filter(t => t !== tagName).forEach(t => params.append('tags', t))
@@ -151,7 +151,9 @@ export function ProductFilters({ tags }: ProductFiltersProps) {
               <SelectContent>
                 <SelectItem value="all">Todas</SelectItem>
                 <SelectItem value="PUBLIC">Público</SelectItem>
-                <SelectItem value="INTERNAL">Interno</SelectItem>
+                <SelectItem value="EXTERNAL">Externo</SelectItem>
+                <SelectItem value="CAMI_YAKU">Cami Yaku</SelectItem>
+                <SelectItem value="INTERNAL">Interno (Legacy)</SelectItem>
               </SelectContent>
             </Select>
           </div>

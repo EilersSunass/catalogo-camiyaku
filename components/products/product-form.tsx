@@ -38,27 +38,27 @@ export function ProductForm({ product, tags }: ProductFormProps) {
     resolver: zodResolver(productSchema),
     defaultValues: product
       ? {
-          name: product.name,
-          type: product.type,
-          description: product.description || '',
-          url: product.url || '',
-          owner: product.owner || '',
-          status: product.status,
-          visibility: product.visibility,
-          eps: product.eps || '',
-          region: product.region || '',
-          district: product.district || '',
-          topic: product.topic || '',
-          period: product.period || '',
-          source: product.source || '',
-          tags: product.tags?.map((pt: any) => pt.tag.name) || [],
-        }
+        name: product.name,
+        type: product.type,
+        description: product.description || '',
+        url: product.url || '',
+        owner: product.owner || '',
+        status: product.status,
+        visibility: product.visibility,
+        eps: product.eps || '',
+        region: product.region || '',
+        district: product.district || '',
+        topic: product.topic || '',
+        period: product.period || '',
+        source: product.source || '',
+        tags: product.tags?.map((pt: any) => pt.tag.name) || [],
+      }
       : {
-          type: 'DASHBOARD',
-          status: 'DRAFT',
-          visibility: 'INTERNAL',
-          tags: [],
-        },
+        type: 'DASHBOARD',
+        status: 'DRAFT',
+        visibility: 'INTERNAL',
+        tags: [],
+      },
   })
 
   const url = watch('url')
@@ -188,8 +188,9 @@ export function ProductForm({ product, tags }: ProductFormProps) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="INTERNAL">Interno</SelectItem>
                 <SelectItem value="PUBLIC">Público</SelectItem>
+                <SelectItem value="EXTERNAL">Externo</SelectItem>
+                <SelectItem value="CAMI_YAKU">Cami Yaku</SelectItem>
               </SelectContent>
             </Select>
             {errors.visibility && <p className="text-sm text-destructive">{errors.visibility.message}</p>}

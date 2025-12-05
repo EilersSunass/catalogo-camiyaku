@@ -27,9 +27,20 @@ export async function GET(request: NextRequest) {
     // Construir where clause
     const where: Prisma.ProductWhereInput = {}
 
-    // Filtro de visibilidad: si no está autenticado, solo PUBLIC
+    // Filtro de visibilidad
     if (!session) {
+      // Usuario anónimo: solo PUBLIC
       where.visibility = 'PUBLIC'
+    } else {
+      const role = session.user.role
+      if (role === 'ADMIN' || role === 'CAMI_YAKU') {
+        // Admin/CamiYaku: ven todo (no filtro de visibilidad por defecto)
+      } else {
+        // Usuario registrado normal: PUBLIC + EXTERNAL (e INTERNAL legacy)
+        where.visibility = {
+          in: ['PUBLIC', 'EXTERNAL', 'INTERNAL'],
+        }
+      }
     }
 
     // Búsqueda por texto

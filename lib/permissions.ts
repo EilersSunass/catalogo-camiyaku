@@ -1,11 +1,11 @@
 import { Role } from '@/types/prisma'
 
 export function canDeleteProduct(userRole: Role, productOwnerId: string, userId: string): boolean {
-  return userRole === 'ADMIN'
+  return userRole === 'ADMIN' || userRole === 'CAMI_YAKU'
 }
 
 export function canEditProduct(userRole: Role, productOwnerId: string, userId: string): boolean {
-  return userRole === 'ADMIN' || productOwnerId === userId
+  return userRole === 'ADMIN' || userRole === 'CAMI_YAKU'
 }
 
 export function canViewAudit(userRole: Role): boolean {
