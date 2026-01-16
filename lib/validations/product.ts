@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const productTypeEnum = z.enum(['DASHBOARD', 'FORM', 'REPORT', 'TOOL', 'OTHER'])
+export const productTypeEnum = z.enum(['DASHBOARD', 'FORM', 'REPORT', 'TOOL', 'OTHER', 'MAP'])
 export const productStatusEnum = z.enum(['DRAFT', 'ACTIVE', 'DEPRECATED'])
 export const visibilityEnum = z.enum(['PUBLIC', 'INTERNAL', 'EXTERNAL', 'CAMI_YAKU'])
 

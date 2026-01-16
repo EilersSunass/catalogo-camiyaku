@@ -43,6 +43,7 @@ export function ProductCard({ product, canEdit, canDelete, onDelete }: ProductCa
       FORM: '📝',
       REPORT: '📄',
       TOOL: '🔧',
+      MAP: '🗺️',
       OTHER: '📦',
     }
     return icons[type] || '📦'

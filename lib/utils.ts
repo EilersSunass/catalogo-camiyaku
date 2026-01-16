@@ -31,6 +31,7 @@ export function getProductTypeLabel(type: string): string {
     FORM: 'Formulario',
     REPORT: 'Reporte',
     TOOL: 'Herramienta',
+    MAP: 'Mapa',
     OTHER: 'Otro',
   }
   return labels[type] || type

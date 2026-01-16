@@ -151,6 +151,7 @@ export function ProductForm({ product, tags }: ProductFormProps) {
                   <SelectItem value="FORM">Formulario</SelectItem>
                   <SelectItem value="REPORT">Reporte</SelectItem>
                   <SelectItem value="TOOL">Herramienta</SelectItem>
+                  <SelectItem value="MAP">Mapa</SelectItem>
                   <SelectItem value="OTHER">Otro</SelectItem>
                 </SelectContent>
               </Select>

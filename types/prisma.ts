@@ -12,6 +12,7 @@ export const ProductType = {
   FORM: 'FORM',
   REPORT: 'REPORT',
   TOOL: 'TOOL',
+  MAP: 'MAP',
   OTHER: 'OTHER',
 } as const
 

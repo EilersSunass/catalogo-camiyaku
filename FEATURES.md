@@ -19,7 +19,7 @@
 #### Product
 - ✅ id (uuid/cuid)
 - ✅ name (string, requerido)
-- ✅ type (enum: DASHBOARD, FORM, REPORT, TOOL, OTHER)
+- ✅ type (enum: DASHBOARD, FORM, REPORT, TOOL, MAP, OTHER)
 - ✅ description (text)
 - ✅ url (string con validación http/https)
 - ✅ owner (string)
