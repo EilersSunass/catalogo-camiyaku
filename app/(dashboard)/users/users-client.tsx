@@ -265,6 +265,7 @@ export function UsersClient() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="USER">Usuario</SelectItem>
+                    <SelectItem value="EXTERNAL">Externo</SelectItem>
                     <SelectItem value="CAMI_YAKU">Cami Yaku</SelectItem>
                     <SelectItem value="ADMIN">Admin</SelectItem>
                   </SelectContent>
@@ -365,6 +366,7 @@ export function UsersClient() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="USER">Usuario</SelectItem>
+                          <SelectItem value="EXTERNAL">Externo</SelectItem>
                           <SelectItem value="CAMI_YAKU">Cami Yaku</SelectItem>
                           <SelectItem value="ADMIN">Admin</SelectItem>
                         </SelectContent>

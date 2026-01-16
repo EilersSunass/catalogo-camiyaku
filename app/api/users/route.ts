@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!['USER', 'ADMIN'].includes(role)) {
+    if (!['USER', 'ADMIN', 'CAMI_YAKU', 'EXTERNAL'].includes(role)) {
       return NextResponse.json({ error: 'Rol inválido' }, { status: 400 })
     }
 

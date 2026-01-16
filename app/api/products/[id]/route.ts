@@ -36,8 +36,15 @@ export async function GET(
     }
 
     // Verificar visibilidad
-    if (product.visibility === 'INTERNAL' && !session) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
+    if (product.visibility !== 'PUBLIC') {
+      if (!session) {
+        return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
+      }
+
+      const role = session.user.role
+      if (product.visibility === 'CAMI_YAKU' && role !== 'ADMIN' && role !== 'CAMI_YAKU') {
+        return NextResponse.json({ error: 'No tienes permisos para ver este producto' }, { status: 403 })
+      }
     }
 
     return NextResponse.json(product)

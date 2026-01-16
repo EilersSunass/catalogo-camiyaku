@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const productTypeEnum = z.enum(['DASHBOARD', 'FORM', 'REPORT', 'TOOL', 'OTHER'])
 export const productStatusEnum = z.enum(['DRAFT', 'ACTIVE', 'DEPRECATED'])
-export const visibilityEnum = z.enum(['PUBLIC', 'INTERNAL'])
+export const visibilityEnum = z.enum(['PUBLIC', 'INTERNAL', 'EXTERNAL', 'CAMI_YAKU'])
 
 export const productSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido').max(200, 'Máximo 200 caracteres'),

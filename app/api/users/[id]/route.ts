@@ -29,7 +29,7 @@ export async function PATCH(
     const updateData: any = {}
 
     if (role) {
-      if (!['USER', 'ADMIN', 'CAMI_YAKU'].includes(role)) {
+      if (!['USER', 'ADMIN', 'CAMI_YAKU', 'EXTERNAL'].includes(role)) {
         return NextResponse.json({ error: 'Rol inválido' }, { status: 400 })
       }
       updateData.role = role
