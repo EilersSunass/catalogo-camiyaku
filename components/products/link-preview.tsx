@@ -11,86 +11,62 @@ interface PreviewData {
     url: string
     siteName?: string
 }
-
 interface LinkPreviewProps {
     url: string
 }
 
 export function LinkPreview({ url }: LinkPreviewProps) {
-    const [data, setData] = useState<PreviewData | null>(null)
     const [loading, setLoading] = useState(true)
-    const [error, setError] = useState(false)
+    const [imgUrl, setImgUrl] = useState<string>('')
 
     useEffect(() => {
-        async function fetchPreview() {
-            if (!url) return
-            setLoading(true)
-            setError(false)
-            try {
-                const response = await fetch(`/api/preview?url=${encodeURIComponent(url)}`)
-                if (!response.ok) throw new Error('Failed to fetch')
-                const previewData = await response.json()
-                setData(previewData)
-            } catch (err) {
-                console.error('Error loading preview:', err)
-                setError(true)
-            } finally {
-                setLoading(false)
-            }
-        }
+        if (!url) return
 
-        fetchPreview()
+        // Usamos el servicio de mshots de WordPress para obtener un screenshot de la página
+        const screenshotUrl = `https://s.wordpress.com/mshots/v1/${encodeURIComponent(url)}?w=800&h=600`
+        setImgUrl(screenshotUrl)
+
+        // Como mshots a veces tarda en generar la primera vez, 
+        // simplemente lo mostramos y dejamos que el navegador gestione la carga
+        const img = new Image()
+        img.src = screenshotUrl
+        img.onload = () => setLoading(false)
+        img.onerror = () => setLoading(false)
+
     }, [url])
 
-    if (loading) {
-        return (
-            <div className="mt-4 border rounded-lg overflow-hidden flex flex-col sm:flex-row h-24 sm:h-20 bg-muted/20">
-                <Skeleton className="w-full sm:w-24 h-full" />
-                <div className="p-2 flex-1 space-y-2">
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-3 w-1/2" />
-                </div>
-            </div>
-        )
-    }
-
-    if (error || !data) {
-        return null
-    }
-
-    const image = data.images?.[0] || data.favicons?.[0]
-    const title = data.title || data.siteName || url
-    const description = data.description
+    if (!url) return null
 
     return (
-        <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 border rounded-lg overflow-hidden flex flex-col sm:flex-row h-auto sm:h-20 bg-card hover:bg-accent/50 transition-colors group"
-        >
-            {image && (
-                <div className="w-full sm:w-24 h-24 sm:h-auto flex-shrink-0 bg-muted flex items-center justify-center overflow-hidden">
-                    <img
-                        src={image}
-                        alt={title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                </div>
-            )}
-            <div className="p-2 flex-1 min-w-0 flex flex-col justify-center">
-                <h4 className="text-xs font-semibold truncate text-foreground leading-tight">
-                    {title}
-                </h4>
-                {description && (
-                    <p className="text-[10px] text-muted-foreground line-clamp-2 mt-0.5 leading-snug">
-                        {description}
-                    </p>
+        <div className="mt-4 space-y-2">
+            <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted shadow-sm group">
+                {loading && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-muted/50">
+                        <Skeleton className="h-full w-full" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <span className="text-xs text-muted-foreground animate-pulse">Capturando sitio...</span>
+                        </div>
+                    </div>
                 )}
-                <span className="text-[9px] text-primary/70 mt-1 truncate">
-                    {new URL(url).hostname}
-                </span>
+                <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block h-full w-full group-hover:scale-[1.02] transition-transform duration-500"
+                >
+                    <img
+                        src={imgUrl}
+                        alt="Website preview"
+                        className={`h-full w-full object-cover object-top transition-opacity duration-300 ${loading ? 'opacity-0' : 'opacity-100'}`}
+                        onLoad={() => setLoading(false)}
+                    />
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <p className="text-[10px] text-white font-medium truncate">
+                            {url}
+                        </p>
+                    </div>
+                </a>
             </div>
-        </a>
+        </div>
     )
 }
