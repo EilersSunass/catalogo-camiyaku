@@ -14,6 +14,8 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
+import { LinkPreview } from './link-preview'
+
 interface ProductCardProps {
   product: any
   canEdit: boolean
@@ -92,6 +94,12 @@ export function ProductCard({ product, canEdit, canDelete, onDelete }: ProductCa
           <p className="text-sm text-muted-foreground line-clamp-3 mb-3">
             {product.description}
           </p>
+        )}
+
+        {product.url && (
+          <div className="mb-4">
+            <LinkPreview url={product.url} />
+          </div>
         )}
 
         <div className="space-y-2 text-xs">

@@ -11,6 +11,8 @@ import Link from 'next/link'
 import { canEditProduct } from '@/lib/permissions'
 import { CopyUrlButton } from '@/components/products/copy-url-button'
 
+import { LinkPreview } from '@/components/products/link-preview'
+
 export default async function ProductDetailPage({
   params,
 }: {
@@ -123,18 +125,23 @@ export default async function ProductDetailPage({
           </CardHeader>
           <CardContent className="space-y-3">
             {product.url && (
-              <div className="flex items-center justify-between">
-                <span className="font-semibold">URL:</span>
-                <div className="flex items-center gap-2">
-                  <a
-                    href={product.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline text-sm"
-                  >
-                    {product.url}
-                  </a>
-                  <CopyUrlButton url={product.url} />
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold">URL:</span>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={product.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline text-sm"
+                    >
+                      {product.url}
+                    </a>
+                    <CopyUrlButton url={product.url} />
+                  </div>
+                </div>
+                <div className="mt-2">
+                  <LinkPreview url={product.url} />
                 </div>
               </div>
             )}
