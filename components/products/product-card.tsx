@@ -71,7 +71,7 @@ export function ProductCard({ product, canEdit, canDelete, onDelete }: ProductCa
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <CardTitle className="text-lg line-clamp-1 cursor-default">{product.name}</CardTitle>
+                    <CardTitle className="text-lg line-clamp-2 cursor-default">{product.name}</CardTitle>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>{product.name}</p>
