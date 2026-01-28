@@ -164,6 +164,7 @@ export async function POST(request: NextRequest) {
         topic: data.topic,
         period: data.period,
         source: data.source,
+        showPreview: data.showPreview,
         createdById: session.user.id,
         tags: {
           create: tags.map((tag) => ({

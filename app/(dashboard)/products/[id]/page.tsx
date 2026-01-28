@@ -140,9 +140,11 @@ export default async function ProductDetailPage({
                     <CopyUrlButton url={product.url} />
                   </div>
                 </div>
-                <div className="mt-2">
-                  <LinkPreview url={product.url} />
-                </div>
+                {product.showPreview && (
+                  <div className="mt-2">
+                    <LinkPreview url={product.url} />
+                  </div>
+                )}
               </div>
             )}
             {product.owner && (

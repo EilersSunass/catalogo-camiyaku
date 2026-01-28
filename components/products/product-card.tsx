@@ -96,7 +96,7 @@ export function ProductCard({ product, canEdit, canDelete, onDelete }: ProductCa
           </p>
         )}
 
-        {product.url && (
+        {product.url && product.showPreview && (
           <div className="mb-4">
             <LinkPreview url={product.url} />
           </div>

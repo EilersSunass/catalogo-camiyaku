@@ -117,6 +117,7 @@ export async function PATCH(
         topic: data.topic,
         period: data.period,
         source: data.source,
+        showPreview: data.showPreview,
         tags: {
           deleteMany: {},
           create: tags.map((tag) => ({

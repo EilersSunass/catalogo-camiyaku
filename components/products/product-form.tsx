@@ -14,6 +14,8 @@ import { useToast } from '@/components/ui/use-toast'
 import { Loader2, ExternalLink } from 'lucide-react'
 import { useState } from 'react'
 
+import { Checkbox } from '@/components/ui/checkbox'
+
 interface ProductFormProps {
   product?: any
   tags: Array<{ id: string; name: string }>
@@ -52,12 +54,14 @@ export function ProductForm({ product, tags }: ProductFormProps) {
         period: product.period || '',
         source: product.source || '',
         tags: product.tags?.map((pt: any) => pt.tag.name) || [],
+        showPreview: product.showPreview,
       }
       : {
         type: 'DASHBOARD',
         status: 'DRAFT',
         visibility: 'INTERNAL',
         tags: [],
+        showPreview: true,
       },
   })
 
@@ -232,6 +236,26 @@ export function ProductForm({ product, tags }: ProductFormProps) {
                 Vista previa
               </a>
             )}
+          </div>
+
+          <div className="flex items-center space-x-2 bg-muted/30 p-3 rounded-lg border border-dashed">
+            <Checkbox
+              id="showPreview"
+              checked={watch('showPreview')}
+              onCheckedChange={(checked) => setValue('showPreview', !!checked)}
+              disabled={isLoading}
+            />
+            <div className="grid gap-1.5 leading-none">
+              <Label
+                htmlFor="showPreview"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+              >
+                Activar vista previa del sitio web
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Si esta URL es un dashboard o reporte, se mostrará una captura de pantalla automática.
+              </p>
+            </div>
           </div>
 
           <div className="space-y-2">

@@ -25,6 +25,7 @@ export const productSchema = z.object({
   period: z.string().max(50, 'Máximo 50 caracteres').optional().nullable(),
   source: z.string().max(200, 'Máximo 200 caracteres').optional().nullable(),
   tags: z.array(z.string()).optional(),
+  showPreview: z.boolean().default(true),
 })
 
 export const productFilterSchema = z.object({

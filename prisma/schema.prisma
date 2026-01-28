@@ -78,6 +78,7 @@ model Product {
   owner       String?
   status      String        @default("DRAFT")
   visibility  String        @default("INTERNAL")
+  showPreview Boolean       @default(true)
 
   // Metadatos SUNASS
   eps         String?
