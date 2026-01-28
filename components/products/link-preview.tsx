@@ -3,39 +3,28 @@
 import { useEffect, useState } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 
-interface PreviewData {
-    title?: string
-    description?: string
-    siteName?: string
-}
-
 interface LinkPreviewProps {
     url: string
 }
 
 export function LinkPreview({ url }: LinkPreviewProps) {
     const [loadingImg, setLoadingImg] = useState(true)
-    const [metadata, setMetadata] = useState<PreviewData | null>(null)
     const [imgUrl, setImgUrl] = useState<string>('')
 
     useEffect(() => {
         if (!url) return
 
-        // 1. Obtener metadatos (rápido para dar contexto)
-        fetch(`/api/preview?url=${encodeURIComponent(url)}`)
-            .then(res => res.json())
-            .then(data => setMetadata(data))
-            .catch(() => console.log('Sin metadatos para:', url))
-
-        // 2. Preparar captura de WordPress MShots
-        const screenshotUrl = `https://s.wordpress.com/mshots/v1/${encodeURIComponent(url)}?w=800&h=600`
+        // 1. Usamos Thum.io con el parámetro wait/5/
+        // Esto le dice al servidor que espere 5 segundos después de cargar la página 
+        // antes de tomar la captura, permitiendo que dashboards y animaciones carguen.
+        const screenshotUrl = `https://image.thum.io/get/width/800/crop/600/wait/5/${url}`
         setImgUrl(screenshotUrl)
 
-        // 3. Temporizador de seguridad (Timeout de 6 seg)
-        // WordPress MShots puede ser lento la primera vez que genera la imagen
+        // 2. Temporizador de seguridad ajustado (12 seg)
+        // (5s de espera técnica + tiempo de carga del servidor Thum.io + red)
         const timer = setTimeout(() => {
             setLoadingImg(false)
-        }, 6000)
+        }, 12000)
 
         const img = new Image()
         img.src = screenshotUrl
@@ -85,22 +74,6 @@ export function LinkPreview({ url }: LinkPreviewProps) {
                         </span>
                     </div>
                 </div>
-
-                {/* Sección de Texto (Si hay metadatos, los mostramos para dar contexto) */}
-                {(metadata?.title || metadata?.description) && (
-                    <div className="p-3 border-t bg-white/50 dark:bg-slate-900/50">
-                        {metadata.title && (
-                            <h4 className="text-xs font-bold text-foreground line-clamp-1 mb-1">
-                                {metadata.title}
-                            </h4>
-                        )}
-                        {metadata.description && (
-                            <p className="text-[10px] text-muted-foreground line-clamp-2 leading-relaxed italic">
-                                {metadata.description}
-                            </p>
-                        )}
-                    </div>
-                )}
             </a>
         </div>
     )
