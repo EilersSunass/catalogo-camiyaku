@@ -14,17 +14,17 @@ export function LinkPreview({ url }: LinkPreviewProps) {
     useEffect(() => {
         if (!url) return
 
-        // 1. Usamos Thum.io con el parámetro wait/5/
-        // Esto le dice al servidor que espere 5 segundos después de cargar la página 
+        // 1. Usamos Thum.io con el parámetro wait/10/
+        // Esto le dice al servidor que espere 10 segundos después de cargar la página 
         // antes de tomar la captura, permitiendo que dashboards y animaciones carguen.
-        const screenshotUrl = `https://image.thum.io/get/width/800/crop/600/wait/5/${url}`
+        const screenshotUrl = `https://image.thum.io/get/width/800/crop/600/wait/10/${url}`
         setImgUrl(screenshotUrl)
 
-        // 2. Temporizador de seguridad ajustado (12 seg)
-        // (5s de espera técnica + tiempo de carga del servidor Thum.io + red)
+        // 2. Temporizador de seguridad ajustado (18 seg)
+        // (10s de espera técnica + tiempo de carga del servidor Thum.io + red)
         const timer = setTimeout(() => {
             setLoadingImg(false)
-        }, 12000)
+        }, 18000)
 
         const img = new Image()
         img.src = screenshotUrl
