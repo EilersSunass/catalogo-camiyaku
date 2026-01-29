@@ -236,6 +236,7 @@ export function ProductFilters({ tags }: ProductFiltersProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas</SelectItem>
+                <SelectItem value="Tiempo Real">Tiempo Real</SelectItem>
                 <SelectItem value="Diaria">Diaria</SelectItem>
                 <SelectItem value="Semanal">Semanal</SelectItem>
                 <SelectItem value="Mensual">Mensual</SelectItem>

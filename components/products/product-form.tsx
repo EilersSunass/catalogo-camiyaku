@@ -314,6 +314,7 @@ export function ProductForm({ product, tags }: ProductFormProps) {
                   <SelectValue placeholder="Seleccionar periodicidad" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="Tiempo Real">Tiempo Real</SelectItem>
                   <SelectItem value="Diaria">Diaria</SelectItem>
                   <SelectItem value="Semanal">Semanal</SelectItem>
                   <SelectItem value="Mensual">Mensual</SelectItem>
