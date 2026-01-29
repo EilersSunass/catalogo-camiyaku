@@ -189,14 +189,62 @@ export function ProductFilters({ tags }: ProductFiltersProps) {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="period">Periodo</Label>
-            <Input
-              id="period"
-              placeholder="Ej: 2025-Q1"
-              value={searchParams.get('period') || ''}
-              onChange={(e) => updateFilter('period', e.target.value)}
-            />
+          <div className="space-y-2 pt-2 border-t">
+            <Label className="text-xs font-bold uppercase text-muted-foreground">Ordenamiento</Label>
+            <div className="space-y-2">
+              <Label htmlFor="sortBy">Ordenar por</Label>
+              <Select
+                value={searchParams.get('sortBy') || 'createdAt'}
+                onValueChange={(value) => updateFilter('sortBy', value)}
+              >
+                <SelectTrigger id="sortBy">
+                  <SelectValue placeholder="Ordenar por..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="createdAt">Fecha de creación</SelectItem>
+                  <SelectItem value="name">Alfabéticamente</SelectItem>
+                  <SelectItem value="period">Periodicidad</SelectItem>
+                  <SelectItem value="updatedAt">Última actualización</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="sortOrder">Dirección</Label>
+              <Select
+                value={searchParams.get('sortOrder') || 'desc'}
+                onValueChange={(value) => updateFilter('sortOrder', value)}
+              >
+                <SelectTrigger id="sortOrder">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="desc">Descendente</SelectItem>
+                  <SelectItem value="asc">Ascendente</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="space-y-2 pt-2 border-t">
+            <Label className="text-xs font-bold uppercase text-muted-foreground">Periodicidad</Label>
+            <Select
+              value={searchParams.get('period') || 'all'}
+              onValueChange={(value) => updateFilter('period', value === 'all' ? '' : value)}
+            >
+              <SelectTrigger id="period">
+                <SelectValue placeholder="Todas las periodicidades" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas</SelectItem>
+                <SelectItem value="Diaria">Diaria</SelectItem>
+                <SelectItem value="Semanal">Semanal</SelectItem>
+                <SelectItem value="Mensual">Mensual</SelectItem>
+                <SelectItem value="Trimestral">Trimestral</SelectItem>
+                <SelectItem value="Semestral">Semestral</SelectItem>
+                <SelectItem value="Anual">Anual</SelectItem>
+                <SelectItem value="Otros">Otros</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {tags.length > 0 && (

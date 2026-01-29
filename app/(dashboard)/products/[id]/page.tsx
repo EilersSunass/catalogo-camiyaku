@@ -201,7 +201,7 @@ export default async function ProductDetailPage({
             )}
             {product.period && (
               <div className="flex justify-between">
-                <span className="font-semibold">Periodo:</span>
+                <span className="font-semibold">Periodicidad:</span>
                 <span className="text-muted-foreground">{product.period}</span>
               </div>
             )}

@@ -120,7 +120,7 @@ export function ProductCard({ product, canEdit, canDelete, onDelete }: ProductCa
           )}
           {product.period && (
             <div>
-              <span className="font-semibold">Periodo:</span> {product.period}
+              <span className="font-semibold">Periodicidad:</span> {product.period}
             </div>
           )}
         </div>

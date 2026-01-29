@@ -27,16 +27,16 @@ Aplicación web full-stack para gestionar un catálogo interno de productos (das
 - ✅ Tipos: Dashboard, Formulario, Reporte, Herramienta, Otro
 - ✅ Estados: Borrador, Activo, Obsoleto
 - ✅ Visibilidad: Público (accesible sin login), Interno (requiere login)
-- ✅ Metadatos SUNASS: EPS, región, distrito, tema, periodo, fuente
+- ✅ Metadatos SUNASS: EPS, región, distrito, tema, periodicidad, fuente
 - ✅ Sistema de tags (Many-to-Many)
 - ✅ Validación de URLs (http/https)
 
 ### Búsqueda y Filtros
 - ✅ Búsqueda por texto (nombre, descripción, tags)
-- ✅ Filtros avanzados: tipo, estado, visibilidad, EPS, región, distrito, tema, periodo, owner, tags
+- ✅ Filtros avanzados: tipo, estado, visibilidad, EPS, región, distrito, tema, periodicidad, owner, tags
 - ✅ Filtros persistentes en URL
 - ✅ Paginación server-side
-- ✅ Ordenamiento por fecha, nombre, estado
+- ✅ Ordenamiento por fecha, nombre, estado, periodicidad
 
 ### Auditoría
 - ✅ Registro automático de acciones: CREATE, UPDATE, DELETE, LOGIN
@@ -194,7 +194,7 @@ npm run db:seed
 
 ### Product
 - id, name, type, description, url, owner, status, visibility
-- Metadatos: eps, region, district, topic, period, source
+- Metadatos: eps, region, district, topic, period (periodicidad), source
 - createdById, createdAt, updatedAt
 
 ### Tag

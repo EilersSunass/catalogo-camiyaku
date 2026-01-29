@@ -304,13 +304,25 @@ export function ProductForm({ product, tags }: ProductFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="period">Periodo</Label>
-              <Input
-                id="period"
-                {...register('period')}
+              <Label htmlFor="period">Periodicidad</Label>
+              <Select
+                value={watch('period') || ''}
+                onValueChange={(value) => setValue('period', value)}
                 disabled={isLoading}
-                placeholder="Ej: 2025-Q1"
-              />
+              >
+                <SelectTrigger id="period">
+                  <SelectValue placeholder="Seleccionar periodicidad" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Diaria">Diaria</SelectItem>
+                  <SelectItem value="Semanal">Semanal</SelectItem>
+                  <SelectItem value="Mensual">Mensual</SelectItem>
+                  <SelectItem value="Trimestral">Trimestral</SelectItem>
+                  <SelectItem value="Semestral">Semestral</SelectItem>
+                  <SelectItem value="Anual">Anual</SelectItem>
+                  <SelectItem value="Otros">Otros</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">

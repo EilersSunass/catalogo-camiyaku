@@ -21,7 +21,7 @@ Aplicación web full-stack para gestionar un catálogo interno de productos (das
 - 5 tipos: Dashboard, Formulario, Reporte, Herramienta, Otro
 - 3 estados: Borrador, Activo, Obsoleto
 - 2 niveles de visibilidad: Público, Interno
-- Metadatos SUNASS: EPS, región, distrito, tema, periodo, fuente
+- Metadatos SUNASS: EPS, región, distrito, tema, periodicidad, fuente
 - Sistema de tags con relación Many-to-Many
 
 ### 🔍 Búsqueda y Filtros

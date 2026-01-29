@@ -42,7 +42,7 @@ export const productFilterSchema = z.object({
   period: z.string().optional(),
   owner: z.string().optional(),
   tags: z.union([z.string(), z.array(z.string())]).optional(),
-  sortBy: z.enum(['updatedAt', 'name', 'status', 'createdAt']).default('updatedAt'),
+  sortBy: z.enum(['updatedAt', 'name', 'status', 'createdAt', 'period']).default('updatedAt'),
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
 })
 
