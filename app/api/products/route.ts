@@ -46,9 +46,9 @@ export async function GET(request: NextRequest) {
     // Búsqueda por texto
     if (filters.q) {
       where.OR = [
-        { name: { contains: filters.q } },
-        { description: { contains: filters.q } },
-        { tags: { some: { tag: { name: { contains: filters.q } } } } },
+        { name: { contains: filters.q, mode: 'insensitive' } },
+        { description: { contains: filters.q, mode: 'insensitive' } },
+        { tags: { some: { tag: { name: { contains: filters.q, mode: 'insensitive' } } } } },
       ]
     }
 
@@ -56,12 +56,12 @@ export async function GET(request: NextRequest) {
     if (filters.type) where.type = filters.type
     if (filters.status) where.status = filters.status
     if (filters.visibility && session) where.visibility = filters.visibility
-    if (filters.eps) where.eps = { contains: filters.eps }
-    if (filters.region) where.region = { contains: filters.region }
-    if (filters.district) where.district = { contains: filters.district }
-    if (filters.topic) where.topic = { contains: filters.topic }
-    if (filters.period) where.period = { contains: filters.period }
-    if (filters.owner) where.owner = { contains: filters.owner }
+    if (filters.eps) where.eps = { contains: filters.eps, mode: 'insensitive' }
+    if (filters.region) where.region = { contains: filters.region, mode: 'insensitive' }
+    if (filters.district) where.district = { contains: filters.district, mode: 'insensitive' }
+    if (filters.topic) where.topic = { contains: filters.topic, mode: 'insensitive' }
+    if (filters.period) where.period = { contains: filters.period, mode: 'insensitive' }
+    if (filters.owner) where.owner = { contains: filters.owner, mode: 'insensitive' }
 
     // Filtro por tags
     if (filters.tags && Array.isArray(filters.tags) && filters.tags.length > 0) {
