@@ -18,17 +18,17 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
+      <div className="container flex h-24 items-center justify-between">
         <div className="flex items-center gap-6">
           <Link href="/products" className="flex items-center space-x-3 group">
-            <div className="relative h-10 w-32 flex items-center">
+            <div className="relative h-[60px] w-48 flex items-center">
               <img
                 src="https://i.postimg.cc/bYTBzCDr/logo-camiyaku-(1).png"
                 alt="Logo CAMI YAKU"
-                className="h-10 w-auto object-contain brightness-110 group-hover:scale-105 transition-transform"
+                className="h-[60px] w-auto object-contain brightness-110 group-hover:scale-105 transition-transform"
               />
             </div>
-            <span className="font-extrabold text-2xl tracking-tight hidden sm:inline-block bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+            <span className="font-extrabold text-3xl tracking-tight hidden sm:inline-block bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
               Catálogo CAMI YAKU
             </span>
           </Link>
@@ -62,11 +62,11 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-6">
-          <div className="hidden lg:flex items-center pr-4 border-r border-muted h-8">
+          <div className="hidden lg:flex items-center pr-4 border-r border-muted h-12">
             <img
               src="https://i.postimg.cc/3rBcKS44/logo-sunass.png"
               alt="Logo SUNASS"
-              className="h-8 w-auto object-contain opacity-90"
+              className="h-12 w-auto object-contain opacity-90"
             />
           </div>
 
