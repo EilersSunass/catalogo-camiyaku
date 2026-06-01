@@ -32,8 +32,16 @@ export async function GET(request: NextRequest) {
       andConditions.push({ visibility: 'PUBLIC' })
     } else {
       const role = session.user.role
-      if (role !== 'ADMIN' && role !== 'CAMI_YAKU') {
-        // Usuario registrado: visibilidad pública/interna + productos asignados individualmente
+      if (role === 'USER') {
+        // Rol Usuario: solo ve productos Públicos + productos asignados individualmente
+        andConditions.push({
+          OR: [
+            { visibility: 'PUBLIC' },
+            { userAccess: { some: { userId: session.user.id } } },
+          ],
+        })
+      } else if (role === 'EXTERNAL') {
+        // Rol SUNASS (EXTERNAL): ve productos Públicos y de SUNASS (EXTERNAL/INTERNAL) + asignados individualmente
         andConditions.push({
           OR: [
             { visibility: { in: ['PUBLIC', 'EXTERNAL', 'INTERNAL'] } },

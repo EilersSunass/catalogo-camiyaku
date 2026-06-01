@@ -50,8 +50,16 @@ export async function GET(
           where: { userId_productId: { userId: session.user.id, productId: product.id } },
         })
 
-        if (product.visibility === 'CAMI_YAKU' && !hasDirectAccess) {
-          return NextResponse.json({ error: 'No tienes permisos para ver este producto' }, { status: 403 })
+        if (!hasDirectAccess) {
+          // Si es rol Usuario (USER), solo puede ver productos públicos (los no públicos requieren acceso directo)
+          if (role === 'USER') {
+            return NextResponse.json({ error: 'No tienes permisos para ver este producto' }, { status: 403 })
+          }
+
+          // Si es rol SUNASS (EXTERNAL), no puede ver productos restringidos a CAMI_YAKU
+          if (product.visibility === 'CAMI_YAKU') {
+            return NextResponse.json({ error: 'No tienes permisos para ver este producto' }, { status: 403 })
+          }
         }
       }
     }

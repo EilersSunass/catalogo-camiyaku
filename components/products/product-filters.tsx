@@ -154,7 +154,6 @@ export function ProductFilters({ tags }: ProductFiltersProps) {
                 <SelectItem value="PUBLIC">Público</SelectItem>
                 <SelectItem value="EXTERNAL">SUNASS</SelectItem>
                 <SelectItem value="CAMI_YAKU">Cami Yaku</SelectItem>
-                <SelectItem value="INTERNAL">SUNASS (Legacy)</SelectItem>
               </SelectContent>
             </Select>
           </div>
