@@ -194,7 +194,7 @@ export function ProductForm({ product, tags }: ProductFormProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="PUBLIC">Público</SelectItem>
-                <SelectItem value="EXTERNAL">Externo</SelectItem>
+                <SelectItem value="EXTERNAL">SUNASS</SelectItem>
                 <SelectItem value="CAMI_YAKU">Cami Yaku</SelectItem>
               </SelectContent>
             </Select>

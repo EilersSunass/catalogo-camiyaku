@@ -49,8 +49,8 @@ export function getProductStatusLabel(status: string): string {
 export function getVisibilityLabel(visibility: string): string {
   const labels: Record<string, string> = {
     PUBLIC: 'Público',
-    INTERNAL: 'Externo (Legacy)', // Keeping for backward compat in UI if needed
-    EXTERNAL: 'Externo',
+    INTERNAL: 'SUNASS (Legacy)', // Keeping for backward compat in UI if needed
+    EXTERNAL: 'SUNASS',
     CAMI_YAKU: 'Cami Yaku',
   }
   return labels[visibility] || visibility
