@@ -42,8 +42,17 @@ export async function GET(
       }
 
       const role = session.user.role
-      if (product.visibility === 'CAMI_YAKU' && role !== 'ADMIN' && role !== 'CAMI_YAKU') {
-        return NextResponse.json({ error: 'No tienes permisos para ver este producto' }, { status: 403 })
+      const isAdminOrCamiYaku = role === 'ADMIN' || role === 'CAMI_YAKU'
+
+      if (!isAdminOrCamiYaku) {
+        // Verificar si tiene acceso asignado individualmente
+        const hasDirectAccess = await prisma.userProductAccess.findUnique({
+          where: { userId_productId: { userId: session.user.id, productId: product.id } },
+        })
+
+        if (product.visibility === 'CAMI_YAKU' && !hasDirectAccess) {
+          return NextResponse.json({ error: 'No tienes permisos para ver este producto' }, { status: 403 })
+        }
       }
     }
 

@@ -22,10 +22,11 @@ model User {
   updatedAt     DateTime  @updatedAt
 
   // Relations
-  products      Product[]
-  auditLogs     AuditLog[]
-  accounts      Account[]
-  sessions      Session[]
+  products         Product[]
+  auditLogs        AuditLog[]
+  accounts         Account[]
+  sessions         Session[]
+  productAccess    UserProductAccess[]
 
   @@map("users")
 }
@@ -94,15 +95,26 @@ model Product {
 
   // Relations
   createdById String
-  createdBy   User          @relation(fields: [createdById], references: [id])
+  createdBy   User              @relation(fields: [createdById], references: [id])
   tags        ProductTag[]
   auditLogs   AuditLog[]
+  userAccess  UserProductAccess[]
 
   @@index([status])
   @@index([type])
   @@index([createdById])
   @@index([visibility])
   @@map("products")
+}
+
+model UserProductAccess {
+  userId    String
+  productId String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([userId, productId])
+  @@map("user_product_access")
 }
 
 model Tag {

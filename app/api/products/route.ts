@@ -24,33 +24,38 @@ export async function GET(request: NextRequest) {
 
     const filters = productFilterSchema.parse(params)
 
-    // Construir where clause
-    const where: Prisma.ProductWhereInput = {}
+    // Construir where clause usando AND para combinar filtros sin colisiones
+    const andConditions: Prisma.ProductWhereInput[] = []
 
     // Filtro de visibilidad
     if (!session) {
-      // Usuario anónimo: solo PUBLIC
-      where.visibility = 'PUBLIC'
+      andConditions.push({ visibility: 'PUBLIC' })
     } else {
       const role = session.user.role
-      if (role === 'ADMIN' || role === 'CAMI_YAKU') {
-        // Admin/CamiYaku: ven todo (no filtro de visibilidad por defecto)
-      } else {
-        // Usuario registrado normal: PUBLIC + EXTERNAL (e INTERNAL legacy)
-        where.visibility = {
-          in: ['PUBLIC', 'EXTERNAL', 'INTERNAL'],
-        }
+      if (role !== 'ADMIN' && role !== 'CAMI_YAKU') {
+        // Usuario registrado: visibilidad pública/interna + productos asignados individualmente
+        andConditions.push({
+          OR: [
+            { visibility: { in: ['PUBLIC', 'EXTERNAL', 'INTERNAL'] } },
+            { userAccess: { some: { userId: session.user.id } } },
+          ],
+        })
       }
+      // Admin/CamiYaku ven todo: no se agrega filtro de visibilidad
     }
 
     // Búsqueda por texto
     if (filters.q) {
-      where.OR = [
-        { name: { contains: filters.q, mode: 'insensitive' } },
-        { description: { contains: filters.q, mode: 'insensitive' } },
-        { tags: { some: { tag: { name: { contains: filters.q, mode: 'insensitive' } } } } },
-      ]
+      andConditions.push({
+        OR: [
+          { name: { contains: filters.q, mode: 'insensitive' } },
+          { description: { contains: filters.q, mode: 'insensitive' } },
+          { tags: { some: { tag: { name: { contains: filters.q, mode: 'insensitive' } } } } },
+        ],
+      })
     }
+
+    const where: Prisma.ProductWhereInput = andConditions.length > 0 ? { AND: andConditions } : {}
 
     // Filtros específicos
     if (filters.type) where.type = filters.type

@@ -9,9 +9,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
 import { useToast } from '@/components/ui/use-toast'
 import { formatDate } from '@/lib/utils'
-import { Shield, User, UserPlus, Trash2, Key } from 'lucide-react'
+import { Shield, User, UserPlus, Trash2, Key, Package } from 'lucide-react'
 
 export function UsersClient() {
   const { toast } = useToast()
@@ -30,6 +31,17 @@ export function UsersClient() {
   const [newPasswordValue, setNewPasswordValue] = useState('')
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
 
+  // Estado para asignación de productos
+  const [assignDialogUserId, setAssignDialogUserId] = useState<string | null>(null)
+  const [assignDialogUserName, setAssignDialogUserName] = useState('')
+  const [allProducts, setAllProducts] = useState<any[]>([])
+  const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set())
+  const [productSearch, setProductSearch] = useState('')
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false)
+  const [isSavingAssignment, setIsSavingAssignment] = useState(false)
+  // Cuántos productos tiene asignados cada usuario (id -> count)
+  const [assignedCounts, setAssignedCounts] = useState<Record<string, number>>({})
+
   useEffect(() => {
     fetchUsers()
   }, [])
@@ -40,6 +52,12 @@ export function UsersClient() {
       const response = await fetch('/api/users')
       const data = await response.json()
       setUsers(data)
+      // Inicializar counts de productos asignados
+      const counts: Record<string, number> = {}
+      for (const u of data) {
+        counts[u.id] = u._count?.productAccess ?? 0
+      }
+      setAssignedCounts(counts)
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -200,6 +218,73 @@ export function UsersClient() {
       setIsUpdatingPassword(false)
     }
   }
+
+  const openAssignDialog = async (userId: string, userName: string) => {
+    setAssignDialogUserId(userId)
+    setAssignDialogUserName(userName)
+    setProductSearch('')
+    setIsLoadingProducts(true)
+
+    try {
+      const [productsRes, assignedRes] = await Promise.all([
+        fetch('/api/products?pageSize=200'),
+        fetch(`/api/users/${userId}/products`),
+      ])
+      const productsData = await productsRes.json()
+      const assignedIds: string[] = await assignedRes.json()
+
+      setAllProducts(productsData.products || [])
+      setSelectedProductIds(new Set(assignedIds))
+    } catch {
+      toast({ variant: 'destructive', title: 'Error', description: 'No se pudieron cargar los productos' })
+    } finally {
+      setIsLoadingProducts(false)
+    }
+  }
+
+  const toggleProduct = (productId: string) => {
+    setSelectedProductIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(productId)) {
+        next.delete(productId)
+      } else {
+        next.add(productId)
+      }
+      return next
+    })
+  }
+
+  const saveAssignment = async () => {
+    if (!assignDialogUserId) return
+    setIsSavingAssignment(true)
+    try {
+      const res = await fetch(`/api/users/${assignDialogUserId}/products`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productIds: Array.from(selectedProductIds) }),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        setAssignedCounts((prev) => ({ ...prev, [assignDialogUserId]: data.count }))
+        toast({ title: 'Asignación guardada', description: `${data.count} productos asignados correctamente` })
+        setAssignDialogUserId(null)
+      } else {
+        const err = await res.json()
+        toast({ variant: 'destructive', title: 'Error', description: err.error || 'No se pudo guardar la asignación' })
+      }
+    } catch {
+      toast({ variant: 'destructive', title: 'Error', description: 'Ocurrió un error al guardar' })
+    } finally {
+      setIsSavingAssignment(false)
+    }
+  }
+
+  const filteredProducts = allProducts.filter(
+    (p) =>
+      p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
+      (p.description || '').toLowerCase().includes(productSearch.toLowerCase())
+  )
 
   return (
     <div className="space-y-6">
@@ -404,6 +489,21 @@ export function UsersClient() {
                     Cambiar Contraseña
                   </Button>
 
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full mt-2"
+                    onClick={() => openAssignDialog(user.id, user.name || user.email)}
+                  >
+                    <Package className="h-3 w-3 mr-1" />
+                    Asignar Productos
+                    {(assignedCounts[user.id] ?? 0) > 0 && (
+                      <Badge variant="secondary" className="ml-2 text-xs">
+                        {assignedCounts[user.id]}
+                      </Badge>
+                    )}
+                  </Button>
+
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button variant="destructive" size="sm" className="w-full mt-2">
@@ -436,6 +536,74 @@ export function UsersClient() {
           </div>
         )
       }
-    </div >
+      {/* Dialog de asignación de productos */}
+      <Dialog open={!!assignDialogUserId} onOpenChange={(open) => { if (!open) setAssignDialogUserId(null) }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Asignar Productos</DialogTitle>
+            <DialogDescription>
+              Selecciona los productos a los que <strong>{assignDialogUserName}</strong> tendrá acceso individual,
+              independientemente de su rol o visibilidad.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            <Input
+              placeholder="Buscar productos..."
+              value={productSearch}
+              onChange={(e) => setProductSearch(e.target.value)}
+            />
+
+            {isLoadingProducts ? (
+              <div className="space-y-2 py-2">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="h-10 bg-muted animate-pulse rounded" />
+                ))}
+              </div>
+            ) : (
+              <>
+                <div className="text-xs text-muted-foreground">
+                  {selectedProductIds.size} seleccionados · {filteredProducts.length} mostrados
+                </div>
+                <div className="h-72 overflow-y-auto border rounded-md p-2">
+                  {filteredProducts.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-6">No se encontraron productos</p>
+                  ) : (
+                    <div className="space-y-1">
+                      {filteredProducts.map((product) => (
+                        <label
+                          key={product.id}
+                          className="flex items-center gap-3 px-2 py-2 rounded hover:bg-muted cursor-pointer"
+                        >
+                          <Checkbox
+                            checked={selectedProductIds.has(product.id)}
+                            onCheckedChange={() => toggleProduct(product.id)}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{product.name}</p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {product.type} · {product.visibility}
+                            </p>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAssignDialogUserId(null)} disabled={isSavingAssignment}>
+              Cancelar
+            </Button>
+            <Button onClick={saveAssignment} disabled={isSavingAssignment || isLoadingProducts}>
+              {isSavingAssignment ? 'Guardando...' : 'Guardar Asignación'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   )
 }
