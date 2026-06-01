@@ -226,14 +226,31 @@ export function UsersClient() {
     setIsLoadingProducts(true)
 
     try {
-      const [productsRes, assignedRes] = await Promise.all([
-        fetch('/api/products?pageSize=200'),
+      // Traer todos los productos paginando (max 100 por página según el schema)
+      const fetchAllProducts = async () => {
+        const allFetched: any[] = []
+        let page = 1
+        let totalPages = 1
+        do {
+          const res = await fetch(`/api/products?pageSize=100&page=${page}`)
+          if (!res.ok) throw new Error('Error al obtener productos')
+          const data = await res.json()
+          allFetched.push(...(data.products || []))
+          totalPages = data.pagination?.totalPages ?? 1
+          page++
+        } while (page <= totalPages)
+        return allFetched
+      }
+
+      const [products, assignedRes] = await Promise.all([
+        fetchAllProducts(),
         fetch(`/api/users/${userId}/products`),
       ])
-      const productsData = await productsRes.json()
+
+      if (!assignedRes.ok) throw new Error('Error al obtener asignaciones')
       const assignedIds: string[] = await assignedRes.json()
 
-      setAllProducts(productsData.products || [])
+      setAllProducts(products)
       setSelectedProductIds(new Set(assignedIds))
     } catch {
       toast({ variant: 'destructive', title: 'Error', description: 'No se pudieron cargar los productos' })
