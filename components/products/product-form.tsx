@@ -11,7 +11,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/components/ui/use-toast'
-import { Loader2, ExternalLink } from 'lucide-react'
+import { Loader2, ExternalLink, FileCode, X } from 'lucide-react'
+import { upload } from '@vercel/blob/client'
 import { useState } from 'react'
 
 import { Checkbox } from '@/components/ui/checkbox'
@@ -29,6 +30,44 @@ export function ProductForm({ product, tags }: ProductFormProps) {
     product?.tags?.map((pt: any) => pt.tag.name) || []
   )
   const [newTag, setNewTag] = useState('')
+  const [htmlFile, setHtmlFile] = useState<File | null>(null)
+  const [removeHtml, setRemoveHtml] = useState(false)
+  const [uploadPct, setUploadPct] = useState<number | null>(null)
+  const currentHtml: string | null = removeHtml ? null : product?.htmlName ?? null
+
+  const onHtmlSelected = (file: File | undefined) => {
+    if (!file) return
+    if (!/\.html?$/i.test(file.name)) {
+      toast({ variant: 'destructive', title: 'Archivo no válido', description: 'Solo se aceptan archivos .html' })
+      return
+    }
+    setHtmlFile(file)
+    setRemoveHtml(false)
+  }
+
+  // Sube el HTML directo a Blob y luego lo asocia al producto.
+  const syncHtml = async (productId: string) => {
+    if (htmlFile) {
+      setUploadPct(0)
+      const safeName = htmlFile.name.replace(/[^\w.\-]+/g, '_').replace(/\.{2,}/g, '.')
+      const blob = await upload(`productos/${productId}/${safeName}`, htmlFile, {
+        access: 'private',
+        handleUploadUrl: `/api/products/${productId}/html/upload`,
+        contentType: 'text/html',
+        multipart: htmlFile.size > 8 * 1024 * 1024,
+        onUploadProgress: ({ percentage }) => setUploadPct(Math.round(percentage)),
+      })
+      const res = await fetch(`/api/products/${productId}/html`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pathname: blob.pathname, name: htmlFile.name }),
+      })
+      if (!res.ok) throw new Error((await res.json()).error || 'No se pudo registrar el archivo HTML')
+    } else if (removeHtml && product?.htmlPath) {
+      const res = await fetch(`/api/products/${productId}/html`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('No se pudo quitar el archivo HTML')
+    }
+  }
 
   const {
     register,
@@ -76,6 +115,22 @@ export function ProductForm({ product, tags }: ProductFormProps) {
         tags: selectedTags,
       }
 
+      // Producto existente: primero se cambia el HTML y después los datos (incluida la
+      // visibilidad). Así, si se pasa a PUBLIC con un HTML nuevo, el anterior nunca queda
+      // expuesto, y si la subida falla no se aplica ningún cambio.
+      if (product) {
+        try {
+          await syncHtml(product.id)
+        } catch (e) {
+          toast({
+            variant: 'destructive',
+            title: 'No se guardaron los cambios',
+            description: e instanceof Error ? e.message : 'Error al subir el archivo HTML',
+          })
+          return
+        }
+      }
+
       const response = await fetch(
         product ? `/api/products/${product.id}` : '/api/products',
         {
@@ -86,6 +141,20 @@ export function ProductForm({ product, tags }: ProductFormProps) {
       )
 
       if (response.ok) {
+        const saved = await response.json()
+        try {
+          // Producto nuevo: necesita su id antes de subir el HTML.
+          if (!product) await syncHtml(saved.id)
+        } catch (e) {
+          toast({
+            variant: 'destructive',
+            title: 'El producto se guardó, pero el archivo HTML no',
+            description: e instanceof Error ? e.message : 'Error al subir el archivo',
+          })
+          router.push(`/products/${saved.id}/edit`)
+          router.refresh()
+          return
+        }
         toast({
           title: product ? 'Producto actualizado' : 'Producto creado',
           description: `El producto se ha ${product ? 'actualizado' : 'creado'} correctamente`,
@@ -108,6 +177,7 @@ export function ProductForm({ product, tags }: ProductFormProps) {
       })
     } finally {
       setIsLoading(false)
+      setUploadPct(null)
     }
   }
 
@@ -256,6 +326,55 @@ export function ProductForm({ product, tags }: ProductFormProps) {
                 Si esta URL es un dashboard o reporte, se mostrará una captura de pantalla automática.
               </p>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="htmlFile">Archivo HTML</Label>
+            <p className="text-xs text-muted-foreground">
+              Para productos que son un archivo .html (mapas, reportes, dashboards autocontenidos).
+              Se abre en el navegador sin descargarlo y respeta la visibilidad del producto.
+            </p>
+            {(htmlFile || currentHtml) && (
+              <div className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm">
+                <FileCode className="h-4 w-4 text-primary shrink-0" />
+                <span className="truncate flex-1">
+                  {htmlFile
+                    ? `${htmlFile.name} (${(htmlFile.size / 1048576).toFixed(1)} MB, se subirá al guardar)`
+                    : currentHtml}
+                </span>
+                {!htmlFile && product?.id && (
+                  <a href={`/ver/${product.id}`} target="_blank" rel="noopener" className="text-primary hover:underline text-xs">
+                    Ver
+                  </a>
+                )}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={isLoading}
+                  title="Quitar archivo"
+                  onClick={() => (htmlFile ? setHtmlFile(null) : setRemoveHtml(true))}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+            {removeHtml && !htmlFile && (
+              <p className="text-xs text-destructive">El archivo HTML se quitará al guardar.</p>
+            )}
+            <Input
+              id="htmlFile"
+              type="file"
+              accept=".html,.htm,text/html"
+              disabled={isLoading}
+              onChange={(e) => {
+                onHtmlSelected(e.target.files?.[0])
+                e.target.value = ''
+              }}
+            />
+            {uploadPct !== null && (
+              <p className="text-xs text-muted-foreground">Subiendo archivo HTML… {uploadPct}%</p>
+            )}
           </div>
 
           <div className="space-y-2">

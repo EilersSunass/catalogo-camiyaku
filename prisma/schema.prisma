@@ -81,6 +81,12 @@ model Product {
   visibility  String        @default("INTERNAL")
   showPreview Boolean       @default(true)
 
+  // Archivo HTML alojado en Vercel Blob (privado); se ve en /ver/[id]
+  htmlPath       String?
+  htmlName       String?
+  htmlSize       Int?
+  htmlUploadedAt DateTime?
+
   // Metadatos SUNASS
   eps         String?
   region      String?
