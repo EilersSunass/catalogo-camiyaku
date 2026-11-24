@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { getProductTypeLabel, getProductStatusLabel, formatDateShort } from '@/lib/utils'
-import { ExternalLink, Eye, Pencil, Trash2, Copy } from 'lucide-react'
+import { ExternalLink, Eye, Pencil, Trash2, Copy, FileCode } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
 import {
   Tooltip,
@@ -153,6 +153,15 @@ export function ProductCard({ product, canEdit, canDelete, onDelete }: ProductCa
               Ver
             </Link>
           </Button>
+
+          {product.htmlPath && !product.url && (
+            <Button variant="outline" size="sm" asChild title="Abrir el archivo HTML en el navegador">
+              <a href={`/ver/${product.id}`} target="_blank" rel="noopener">
+                <FileCode className="h-4 w-4 mr-1" />
+                Abrir
+              </a>
+            </Button>
+          )}
 
           {product.url && (
             <>

@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { productSchema } from '@/lib/validations/product'
 import { canDeleteProduct, canEditProduct } from '@/lib/permissions'
+import { del } from '@vercel/blob'
 
 export async function GET(
   request: NextRequest,
@@ -217,6 +218,11 @@ export async function DELETE(
     await prisma.product.delete({
       where: { id: params.id },
     })
+
+    // Borrar su archivo HTML del almacenamiento, si tenía
+    if (product.htmlPath) {
+      await del(product.htmlPath).catch((e) => console.error('No se pudo borrar el HTML:', e))
+    }
 
     // Registrar en auditoría
     await prisma.auditLog.create({

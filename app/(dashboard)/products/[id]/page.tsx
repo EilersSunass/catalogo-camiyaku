@@ -6,10 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { getProductTypeLabel, getProductStatusLabel, getVisibilityLabel, formatDate } from '@/lib/utils'
-import { ExternalLink, Pencil, ArrowLeft } from 'lucide-react'
+import { ExternalLink, Pencil, ArrowLeft, FileCode } from 'lucide-react'
 import Link from 'next/link'
 import { canEditProduct } from '@/lib/permissions'
 import { CopyUrlButton } from '@/components/products/copy-url-button'
+import { checkProductAccess } from '@/lib/product-access'
 
 import { LinkPreview } from '@/components/products/link-preview'
 
@@ -42,9 +43,13 @@ export default async function ProductDetailPage({
     notFound()
   }
 
-  // Verificar visibilidad
-  if (product.visibility === 'INTERNAL' && !session) {
+  // Verificar visibilidad (misma regla que el listado)
+  const access = await checkProductAccess(session, product)
+  if (access === 'login') {
     redirect('/login?callbackUrl=/products/' + params.id)
+  }
+  if (access === 'forbidden') {
+    notFound()
   }
 
   const canEdit = session
@@ -87,6 +92,14 @@ export default async function ProductDetailPage({
           </div>
 
           <div className="flex gap-2">
+            {product.htmlPath && (
+              <Button asChild variant={product.url ? 'outline' : 'default'}>
+                <a href={`/ver/${product.id}`} target="_blank" rel="noopener">
+                  <FileCode className="h-4 w-4 mr-2" />
+                  {product.url ? 'Ver HTML' : 'Abrir'}
+                </a>
+              </Button>
+            )}
             {product.url && (
               <Button asChild>
                 <a href={product.url} target="_blank" rel="noopener noreferrer">
@@ -115,6 +128,26 @@ export default async function ProductDetailPage({
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground whitespace-pre-wrap">{product.description}</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {product.htmlPath && product.showPreview && (
+          <Card className="overflow-hidden">
+            <CardHeader>
+              <CardTitle>Vista del producto</CardTitle>
+              <CardDescription>
+                {product.htmlName}
+                {product.htmlSize ? ` · ${(product.htmlSize / 1048576).toFixed(1)} MB` : ''}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              <iframe
+                src={`/ver/${product.id}?embed=1`}
+                title={product.name}
+                loading="lazy"
+                className="h-[600px] w-full border-0 border-t"
+              />
             </CardContent>
           </Card>
         )}
